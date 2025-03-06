@@ -4,7 +4,7 @@
 load("@%{arm_none_eabi_repo_name}//:rules.bzl", "arm_binary")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
-def stm32_binary(
+def st_binary(
         name,
         ldscript,
         startupfile,

@@ -1,9 +1,9 @@
 """
 """
 
-load("@STM32F401//:rules.bzl", "stm32_binary")
+load("@STM32F401//:rules.bzl", "st_binary")
 
-stm32_binary(
+st_binary(
     name = "HelloWorld",
     copts = [],
     deps = [

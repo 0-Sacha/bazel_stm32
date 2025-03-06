@@ -4,7 +4,7 @@ load("@bazel_arm//:registry.bzl", "ARM_REGISTRY")
 load("@bazel_arm//:rules.bzl", "arm_toolchain", "arm_compiler_archive")
 load("@bazel_skylib//lib:sets.bzl", "sets")
 
-load("//mcu:stm32_famillies.bzl", "STM32_FAMILLIES_LUT")
+load("//mcu:stm32_families.bzl", "STM32_FAMILIES_LUT", "stm32_family_info_from_dict")
 
 def _stm32_rules_impl(rctx):
     substitutions = {
@@ -14,7 +14,7 @@ def _stm32_rules_impl(rctx):
         "%{arm_none_eabi_repo_name}": rctx.attr.arm_none_eabi_repo_name,
 
         "%{MCU_ID}": rctx.attr.mcu,
-        "%{MCU_FAMILLY}": rctx.attr.stm32_familly,
+        "%{MCU_FAMILY}": rctx.attr.stm32_family,
 
         "%{exec_compatible_with}": json.encode(rctx.attr.exec_compatible_with),
         "%{target_compatible_with}": json.encode(rctx.attr.target_compatible_with),
@@ -38,7 +38,7 @@ _stm32_rules = repository_rule(
         'arm_none_eabi_repo_name': attr.string(mandatory = True),
 
         'mcu': attr.string(mandatory = True),
-        'stm32_familly': attr.string(mandatory = True),
+        'stm32_family': attr.string(mandatory = True),
 
         'exec_compatible_with': attr.string_list(default = []),
         'toolchain_mcu_constraint': attr.string_list(default = []),
@@ -51,6 +51,7 @@ def stm32_toolchain(
 
         mcu,
         device_group,
+        custom_stm32_family_info = None,
 
         copts = [],
         conlyopts = [],
@@ -79,18 +80,17 @@ def stm32_toolchain(
         arm_none_eabi_version = "latest",
         arm_registry = None,
         arm_compiler_archive_package = None,
-
-        custom_stm32_info = None,
     ):
     """STM32 toolchain
 
-    This macro create a repository containing all files needded to get an STM32 toolchain using an arm-none-eabi Toolchain
+    This macro create a repository containing all files needed to get an STM32 toolchain using an arm-none-eabi Toolchain
 
     Args:
         name: Name of the repo that will be created
 
         mcu: STM32 mcu name
         device_group: device_group
+        custom_stm32_family_info: information about the mcu you are using if you don't want to use the provided STM32_FAMILIES_LUT
 
         copts: copts
         conlyopts: conlyopts
@@ -114,23 +114,21 @@ def stm32_toolchain(
 
         exec_compatible_with: The exec_compatible_with list for the toolchain
         target_compatible_with: The target_compatible_with list for the toolchain
-        use_mcu_constraint: Add the mcu_constraint list (cpu / stm32 familly) to the target_compatible_with
+        use_mcu_constraint: Add the mcu_constraint list (cpu / stm32 family) to the target_compatible_with
 
         arm_none_eabi_version: The arm-none-eabi archive version
         arm_registry: The arm registry to use. Default to @bazel_arm//:ARM_REGISTRY
         arm_compiler_archive_package: The arm archive to use. If none are provided, one will be define automatically with this name: ":arm-none-eabi-" + mcu
-
-        custom_stm32_info: information about the mcu you are using if you don't want to use the provided STM32_FAMILLIES_LUT
     """
     mcu = mcu.upper()
-    stm32_familly = mcu[:7]
+    stm32_family = mcu[:7]
 
-    stm32_familly_info = custom_stm32_info
-    if stm32_familly_info == None:
-        stm32_familly_info = STM32_FAMILLIES_LUT[stm32_familly]
-    mcu_flags = [ stm32_familly_info.cpu, "-mthumb" ]
-    if hasattr(stm32_familly_info, "fpu") and stm32_familly_info.fpu != None:
-        mcu_flags += [ stm32_familly_info.fpu_abi, stm32_familly_info.fpu ]
+    stm32_family_info = custom_stm32_family_info
+    if stm32_family_info == None:
+        stm32_family_info = STM32_FAMILIES_LUT[stm32_family]
+    mcu_flags = [ stm32_family_info.cpu, "-mthumb" ]
+    if hasattr(stm32_family_info, "fpu") and stm32_family_info.fpu != None:
+        mcu_flags += [ stm32_family_info.fpu ]
 
     copts = mcu_flags + copts
     linkopts = mcu_flags + linkopts
@@ -138,9 +136,9 @@ def stm32_toolchain(
     defines = defines + [ "USE_HAL_DRIVER", device_group ]
     includedirs = includedirs + [
         "Core/Inc",
-        "Drivers/{stm32_familly}xx_HAL_Driver/Inc".format(stm32_familly = stm32_familly),
-        "Drivers/{stm32_familly}xx_HAL_Driver/Inc/Legacy".format(stm32_familly = stm32_familly),
-        "Drivers/CMSIS/Device/ST/{stm32_familly}xx/Include".format(stm32_familly = stm32_familly),
+        "Drivers/{stm32_family}xx_HAL_Driver/Inc".format(stm32_family = stm32_family),
+        "Drivers/{stm32_family}xx_HAL_Driver/Inc/Legacy".format(stm32_family = stm32_family),
+        "Drivers/CMSIS/Device/ST/{stm32_family}xx/Include".format(stm32_family = stm32_family),
         "Drivers/CMSIS/Include"
     ]
 
@@ -151,8 +149,8 @@ def stm32_toolchain(
         linkopts.append("-Wl,--gc-sections")
 
     toolchain_mcu_constraint = [
-        "@platforms//cpu:{}".format(stm32_familly_info.arm_cpu_version),
-        # "@bazel_stm32//mcu:{}".format(stm32_familly.lower()),
+        "@platforms//cpu:{}".format(stm32_family_info.arm_cpu_version),
+        # "@bazel_stm32//mcu:{}".format(stm32_family.lower()),
     ]
 
     if use_mcu_constraint:
@@ -195,7 +193,7 @@ def stm32_toolchain(
         name = name,
         arm_none_eabi_repo_name = "arm-none-eabi-" + name,
         mcu = mcu,
-        stm32_familly = stm32_familly,
+        stm32_family = stm32_family,
         toolchain_mcu_constraint = toolchain_mcu_constraint,
         target_compatible_with = target_compatible_with,
     )
@@ -219,13 +217,19 @@ def _stm32_toolchain_extension_impl(module_ctx):
             registry_json = json.encode(arm_registry),
         )
     
+
+
     for mod in module_ctx.modules:
         for platform in mod.tags.stm32_platform:
+            custom_stm32_family_info = None
+            if platform.custom_stm32_family_info != {}:
+                custom_stm32_family_info = stm32_family_info_from_dict(platform.custom_stm32_family_info)
             stm32_toolchain(
                 name = platform.name,
 
                 mcu = platform.mcu,
                 device_group = platform.device_group,
+                custom_stm32_family_info = custom_stm32_family_info,
 
                 copts = platform.copts,
                 conlyopts = platform.conlyopts,
@@ -264,6 +268,7 @@ stm32_toolchain_extension = module_extension(
             
             'mcu': attr.string(mandatory = True),
             'device_group': attr.string(mandatory = True),
+            'custom_stm32_family_info': attr.string_dict(default = {}),
 
             'exec_compatible_with': attr.string_list(default = []),
             'target_compatible_with': attr.string_list(default = []),

@@ -1,0 +1,24 @@
+{
+    "cSpell.words": [
+        "armv",
+        "bazel",
+        "CMSIS",
+        "conlyopts",
+        "cxxopts",
+        "eabi",
+        "filegroups",
+        "hasattr",
+        "includedirs",
+        "linkdirs",
+        "linklibs",
+        "linkopts",
+        "mcpu",
+        "mfloat",
+        "mfpu",
+        "mthumb",
+        "nosys",
+        "rctx",
+        "runfiles",
+        "skylib"
+    ]
+}

@@ -211,7 +211,7 @@
             "attributes": {
               "arm_none_eabi_repo_name": "arm-none-eabi-STM32F401",
               "mcu": "STM32F401CCU6",
-              "stm32_familly": "STM32F4",
+              "stm32_family": "STM32F4",
               "toolchain_mcu_constraint": [
                 "@platforms//cpu:armv7e-mf"
               ],
