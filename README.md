@@ -10,7 +10,7 @@ MODULE.bazel
 bazel_dep(name = "rules_cc", version = "0.0.10")
 bazel_dep(name = "platforms", version = "0.0.10")
 
-git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="aa399bb2599e2cd64a35a2275ce0f73a539524a5")
+git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="6c218400772aa3ccf8e960b918a338ab3848bbcd")
 git_override(module_name="bazel_arm", remote="https://github.com/0-Sacha/bazel_arm.git", commit="5f8d6ccf9915f6dc0b90655226fc518a75f7bef5")
 
 # Replace with git_override from my repo `https://github.com/0-Sacha/bazel_stm32.git`
@@ -44,12 +44,12 @@ use_repo(stm32_toolchain_extension, "my_repo_name")
 use_repo(stm32_toolchain_extension, "arm-none-eabi-my_repo_name")
 register_toolchains("@arm-none-eabi-my_repo_name//:toolchain")
 ```
-This will declare you the `stm32_binary` rule that you will need to use in order to correctly link your's linker-script and startup-file:
+This will declare you the `st_binary` rule that you will need to use in order to correctly link your's linker-script and startup-file:
 BUILD.bazel
 ```python
-load("@STM32F401//:rules.bzl", "stm32_binary")
+load("@STM32F401//:rules.bzl", "st_binary")
 
-stm32_binary(
+st_binary(
     name = "HelloWorld",
     srcs = [ "main.cpp" ],
     copts = [],
