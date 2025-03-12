@@ -1,6 +1,6 @@
 ""
 
-load("@bazel_arm//:registry.bzl", "ARM_REGISTRY")
+load("@bazel_arm//registry:registry.bzl", "ARM_REGISTRY")
 load("@bazel_arm//:rules.bzl", "arm_toolchain", "arm_compiler_archive")
 load("@bazel_skylib//lib:sets.bzl", "sets")
 
@@ -53,6 +53,11 @@ def stm32_toolchain(
         device_group,
         custom_stm32_family_info = None,
 
+        # Theses should be deleted
+        add_toolchain_linkdirs = False,
+        thumb_abi_version_folder_path = "",
+
+        extra_mcuopts = [],
         copts = [],
         conlyopts = [],
         cxxopts = [],
@@ -68,8 +73,6 @@ def stm32_toolchain(
         opt_linkopts = [],
 
         specs = [],
-
-        gc_sections = True,
 
         arm_toolchain_extras_filegroups = [],
 
@@ -92,6 +95,11 @@ def stm32_toolchain(
         device_group: device_group
         custom_stm32_family_info: information about the mcu you are using if you don't want to use the provided STM32_FAMILIES_LUT
 
+        # Theses should be deleted
+        add_toolchain_linkdirs: add_toolchain_linkdirs from bazel_arm
+        thumb_abi_version_folder_path: thumb_abi_version_folder_path from bazel_arm
+
+        extra_mcuopts: extra_mcuopts
         copts: copts
         conlyopts: conlyopts
         cxxopts: cxxopts
@@ -108,8 +116,6 @@ def stm32_toolchain(
 
         specs: specs for the compiler (nano, nosys, ...)
 
-        gc_sections: Enable the garbage collection of unused sections
-
         arm_toolchain_extras_filegroups: arm_toolchain_extras_filegroups
 
         exec_compatible_with: The exec_compatible_with list for the toolchain
@@ -121,32 +127,13 @@ def stm32_toolchain(
         arm_compiler_archive_package: The arm archive to use. If none are provided, one will be define automatically with this name: ":arm-none-eabi-" + mcu
     """
     mcu = mcu.upper()
-    stm32_family = mcu[:7]
-
     stm32_family_info = custom_stm32_family_info
     if stm32_family_info == None:
+        stm32_family = mcu[:7]
         stm32_family_info = STM32_FAMILIES_LUT[stm32_family]
-    mcu_flags = [ stm32_family_info.cpu, "-mthumb" ]
+    mcuopts = [ "-mthumb" ] + extra_mcuopts + [ stm32_family_info.cpu ]
     if hasattr(stm32_family_info, "fpu") and stm32_family_info.fpu != None:
-        mcu_flags += [ stm32_family_info.fpu ]
-
-    copts = mcu_flags + copts
-    linkopts = mcu_flags + linkopts
-
-    defines = defines + [ "USE_HAL_DRIVER", device_group ]
-    includedirs = includedirs + [
-        "Core/Inc",
-        "Drivers/{stm32_family}xx_HAL_Driver/Inc".format(stm32_family = stm32_family),
-        "Drivers/{stm32_family}xx_HAL_Driver/Inc/Legacy".format(stm32_family = stm32_family),
-        "Drivers/CMSIS/Device/ST/{stm32_family}xx/Include".format(stm32_family = stm32_family),
-        "Drivers/CMSIS/Include"
-    ]
-
-    linkopts = linkopts
-
-    if gc_sections:
-        copts += [ "-fdata-sections", "-ffunction-sections" ]
-        linkopts.append("-Wl,--gc-sections")
+        mcuopts += [ stm32_family_info.fpu ]
 
     toolchain_mcu_constraint = [
         "@platforms//cpu:{}".format(stm32_family_info.arm_cpu_version),
@@ -164,11 +151,15 @@ def stm32_toolchain(
         exec_compatible_with = exec_compatible_with,
         target_compatible_with = target_compatible_with,
 
-        copts = copts,
+        # Theses should be deleted
+        add_toolchain_linkdirs = add_toolchain_linkdirs,
+        thumb_abi_version_folder_path = thumb_abi_version_folder_path,
+
+        copts = mcuopts + copts,
         conlyopts = conlyopts,
         cxxopts = cxxopts,
-        linkopts = linkopts,
-        defines = defines,
+        linkopts = mcuopts + linkopts,
+        defines = defines + [ device_group ],
         includedirs = includedirs,
         linkdirs = linkdirs,
         linklibs = linklibs,
@@ -179,8 +170,6 @@ def stm32_toolchain(
         opt_linkopts = opt_linkopts,
 
         specs = specs,
-
-        add_toolchain_linkdirs = False,
 
         toolchain_extras_filegroups = arm_toolchain_extras_filegroups,
 
@@ -216,8 +205,6 @@ def _stm32_toolchain_extension_impl(module_ctx):
             toolchain_version = version,
             registry_json = json.encode(arm_registry),
         )
-    
-
 
     for mod in module_ctx.modules:
         for platform in mod.tags.stm32_platform:
@@ -231,6 +218,11 @@ def _stm32_toolchain_extension_impl(module_ctx):
                 device_group = platform.device_group,
                 custom_stm32_family_info = custom_stm32_family_info,
 
+                # Theses should be deleted
+                add_toolchain_linkdirs = platform.add_toolchain_linkdirs,
+                thumb_abi_version_folder_path = platform.thumb_abi_version_folder_path,
+
+                extra_mcuopts = platform.extra_mcuopts,
                 copts = platform.copts,
                 conlyopts = platform.conlyopts,
                 cxxopts = platform.cxxopts,
@@ -246,8 +238,6 @@ def _stm32_toolchain_extension_impl(module_ctx):
                 opt_linkopts = platform.opt_linkopts,
 
                 specs = platform.specs,
-
-                gc_sections = platform.gc_sections,
 
                 arm_toolchain_extras_filegroups = platform.arm_toolchain_extras_filegroups,
 
@@ -270,10 +260,15 @@ stm32_toolchain_extension = module_extension(
             'device_group': attr.string(mandatory = True),
             'custom_stm32_family_info': attr.string_dict(default = {}),
 
+            # Theses should be deleted
+            'add_toolchain_linkdirs': attr.bool(default = False),
+            'thumb_abi_version_folder_path': attr.string(default = ""),
+
             'exec_compatible_with': attr.string_list(default = []),
             'target_compatible_with': attr.string_list(default = []),
             'use_mcu_constraint': attr.bool(default = True),
 
+            'extra_mcuopts': attr.string_list(default = []),
             'copts': attr.string_list(default = []),
             'conlyopts': attr.string_list(default = []),
             'cxxopts': attr.string_list(default = []),
@@ -289,8 +284,6 @@ stm32_toolchain_extension = module_extension(
             'opt_linkopts': attr.string_list(default = []),
 
             'specs': attr.string_list(default = []),
-
-            'gc_sections': attr.bool(default = True),
 
             'arm_toolchain_extras_filegroups': attr.label_list(default = []),
         }),

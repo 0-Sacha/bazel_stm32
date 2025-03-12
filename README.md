@@ -10,7 +10,7 @@ MODULE.bazel
 bazel_dep(name = "rules_cc", version = "0.0.10")
 bazel_dep(name = "platforms", version = "0.0.10")
 
-git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="6c218400772aa3ccf8e960b918a338ab3848bbcd")
+git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="2f7370501eb6c1d483bac7e555c52c2aab6b8163")
 git_override(module_name="bazel_arm", remote="https://github.com/0-Sacha/bazel_arm.git", commit="5f8d6ccf9915f6dc0b90655226fc518a75f7bef5")
 
 # Replace with git_override from my repo `https://github.com/0-Sacha/bazel_stm32.git`

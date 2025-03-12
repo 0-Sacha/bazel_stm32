@@ -14,7 +14,7 @@ cc_library(
     srcs = glob([ "Inc/*.h", "Src/*.c" ], allow_empty = True),
     hdrs = glob([ "Inc/*.h" ], allow_empty = True),
     includes = [ "Inc/" ],
-    deps = [ "//Drivers:Drivers" ],
+    deps = [ "//gen/Drivers:Drivers" ],
     strip_include_prefix = "",
     include_prefix = "",
     linkstatic = True,

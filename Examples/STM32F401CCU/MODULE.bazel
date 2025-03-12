@@ -9,8 +9,10 @@ module(
 bazel_dep(name = "rules_cc", version = "0.0.10")
 bazel_dep(name = "platforms", version = "0.0.10")
 
-git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="6c218400772aa3ccf8e960b918a338ab3848bbcd")
-git_override(module_name="bazel_arm", remote="https://github.com/0-Sacha/bazel_arm.git", commit="feb807880096a95358d8c71a0c0168fd8153137e")
+# git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="2f7370501eb6c1d483bac7e555c52c2aab6b8163")
+# git_override(module_name="bazel_arm", remote="https://github.com/0-Sacha/bazel_arm.git", commit="feb807880096a95358d8c71a0c0168fd8153137e")
+local_path_override(module_name = "bazel_utilities", path = "../../../bazel_utilities")
+local_path_override(module_name = "bazel_arm", path = "../../../bazel_arm")
 
 # Replace with git_override from my repo `https://github.com/0-Sacha/bazel_stm32.git`
 local_path_override(module_name = "bazel_stm32", path = "../../")
@@ -26,8 +28,11 @@ stm32_toolchain_extension.stm32_platform(
 
     mcu = "STM32F401CCU6",
     device_group = "STM32F401xC",
-    
-    copts = [],
+
+    # thumb_abi_version_folder_path = "thumb/v7e-m/hard",
+    # add_toolchain_linkdirs = True,
+
+    extra_mcuopts = [ "-mfloat-abi=hard" ],
     cxxopts = [ "-std=c++20" ],
     linkopts = [
         "-lstdc++",

@@ -42,6 +42,9 @@ def _st_flash_direct_call_impl(ctx):
         DefaultInfo(
             executable = flasher_wrapper,
             default_runfiles = runfiles,
+        ),
+        OutputGroupInfo(
+            binary = ctx.attr.binary[OutputGroupInfo].bin,
         )
     ]
 

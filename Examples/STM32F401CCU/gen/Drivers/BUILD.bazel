@@ -15,7 +15,7 @@ cc_library(
         "CMSIS/Include/"
     ],
     deps = [
-        "//Core:Inc"
+        "//gen/Core:Inc"
     ],
     strip_include_prefix = "",
     include_prefix = "",
