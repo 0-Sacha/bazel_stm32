@@ -1,4 +1,4 @@
-name: stm32F4
+name: stm32F1
 
 on:
   push:
