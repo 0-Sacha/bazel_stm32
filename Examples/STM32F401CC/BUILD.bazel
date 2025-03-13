@@ -1,0 +1,21 @@
+load("@STM32F401//:rules.bzl", "st_binary")
+load("@bazel_stm32//st_tools:st_tools.bzl", "st_flash", "st_debug")
+
+st_binary(
+    name = "HelloWorld",
+    copts = [],
+    deps = [
+        "//gen/Core:Core",
+        "//gen/Drivers:Drivers",
+    ],
+    ldscript = "gen/STM32F401CCUx_FLASH.ld",
+    startupfile = "gen/startup_stm32f401xc.s",
+    visibility = ["//visibility:public"],
+)
+
+st_flash(
+    name = "flash",
+    binary = ":HelloWorld",
+)
+
+st_debug(name = "debug")

@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - '**'
-  pull_request:
-    branches:
-      - '**'
+  # pull_request:
+  #   branches:
+  #     - '**'
 
 jobs:
   windows-latest:
@@ -19,9 +19,9 @@ jobs:
       with:
         path: "~/.cache/bazel"
         key: bazel
-    - name: Build STM32F401CCU/HelloWorld
+    - name: Build STM32F401CC/HelloWorld
       run: bazelisk build //:HelloWorld
-      working-directory: Examples/STM32F401CCU
+      working-directory: Examples/STM32F401CC
 
   ubuntu-latest:
     runs-on: ubuntu-latest
@@ -33,6 +33,6 @@ jobs:
       with:
         path: "~/.cache/bazel"
         key: bazel
-    - name: Build STM32F401CCU/HelloWorld
+    - name: Build STM32F401CC/HelloWorld
       run: bazelisk build //:HelloWorld
-      working-directory: Examples/STM32F401CCU
+      working-directory: Examples/STM32F401CC
