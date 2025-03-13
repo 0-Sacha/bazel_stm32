@@ -1,0 +1,21 @@
+load("@STM32F103//:rules.bzl", "st_binary")
+load("@bazel_stm32//st_tools:st_tools.bzl", "st_flash", "st_debug")
+
+st_binary(
+    name = "HelloWorld",
+    copts = [],
+    deps = [
+        "//gen/Core:Core",
+        "//gen/Drivers:Drivers",
+    ],
+    ldscript = "gen/stm32f103cbtx_flash.ld",
+    startupfile = "gen/startup_stm32f103xb.s",
+    visibility = ["//visibility:public"],
+)
+
+st_flash(
+    name = "flash",
+    binary = ":HelloWorld",
+)
+
+st_debug(name = "debug")

@@ -53,10 +53,6 @@ def stm32_toolchain(
         device_group,
         custom_stm32_family_info = None,
 
-        # Theses should be deleted
-        add_toolchain_linkdirs = False,
-        thumb_abi_version_folder_path = "",
-
         extra_mcuopts = [],
         copts = [],
         conlyopts = [],
@@ -94,10 +90,6 @@ def stm32_toolchain(
         mcu: STM32 mcu name
         device_group: device_group
         custom_stm32_family_info: information about the mcu you are using if you don't want to use the provided STM32_FAMILIES_LUT
-
-        # Theses should be deleted
-        add_toolchain_linkdirs: add_toolchain_linkdirs from bazel_arm
-        thumb_abi_version_folder_path: thumb_abi_version_folder_path from bazel_arm
 
         extra_mcuopts: extra_mcuopts
         copts: copts
@@ -150,10 +142,6 @@ def stm32_toolchain(
 
         exec_compatible_with = exec_compatible_with,
         target_compatible_with = target_compatible_with,
-
-        # Theses should be deleted
-        add_toolchain_linkdirs = add_toolchain_linkdirs,
-        thumb_abi_version_folder_path = thumb_abi_version_folder_path,
 
         copts = mcuopts + copts,
         conlyopts = conlyopts,
@@ -218,10 +206,6 @@ def _stm32_toolchain_extension_impl(module_ctx):
                 device_group = platform.device_group,
                 custom_stm32_family_info = custom_stm32_family_info,
 
-                # Theses should be deleted
-                add_toolchain_linkdirs = platform.add_toolchain_linkdirs,
-                thumb_abi_version_folder_path = platform.thumb_abi_version_folder_path,
-
                 extra_mcuopts = platform.extra_mcuopts,
                 copts = platform.copts,
                 conlyopts = platform.conlyopts,
@@ -259,10 +243,6 @@ stm32_toolchain_extension = module_extension(
             'mcu': attr.string(mandatory = True),
             'device_group': attr.string(mandatory = True),
             'custom_stm32_family_info': attr.string_dict(default = {}),
-
-            # Theses should be deleted
-            'add_toolchain_linkdirs': attr.bool(default = False),
-            'thumb_abi_version_folder_path': attr.string(default = ""),
 
             'exec_compatible_with': attr.string_list(default = []),
             'target_compatible_with': attr.string_list(default = []),

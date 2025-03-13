@@ -29,6 +29,8 @@ def st_binary(
         srcs = [ startupfile ],
         copts = [ "-x", "assembler-with-cpp" ],
         target_compatible_with = %{target_compatible_with},
+        linkstatic = True,
+        alwayslink = True,
         visibility = ["//visibility:public"],
     )
 
