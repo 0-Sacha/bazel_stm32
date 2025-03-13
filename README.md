@@ -53,7 +53,7 @@ st_binary(
     name = "HelloWorld",
     srcs = [ "main.cpp" ],
     copts = [],
-    # Thoses are the libs to link from the generated folders `Core` and `Drivers`. You can copy the file in the Examples/STM32F401CCU folder
+    # Thoses are the libs to link from the generated folders `Core` and `Drivers`. You can copy the file in the examples/STM32F401CCU folder
     # Be aware, thoses lib include specification of the mcu HAL config, see `Drivers/BUILD.bazel` -> defines = [ "STM32F401xC" ];
     # Again, you can find this value in the generated Makefile
     deps = [
@@ -68,4 +68,4 @@ st_binary(
 )
 ```
 
-To build this, you will need to use the associated platform `--platforms=@my_repo_name//:platform`, see the `.bazelrc` in the `Examples` folder.
+To build this, you will need to use the associated platform `--platforms=@my_repo_name//:platform`, see the `.bazelrc` in the `examples` folder.
