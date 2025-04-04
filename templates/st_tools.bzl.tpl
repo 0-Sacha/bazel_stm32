@@ -1,9 +1,8 @@
 """
 """
 
-def st_opt(value, opt_prefix, default_value = ""):
+def _st_opt(value, opt_prefix, default_value = ""):
     return "{opt_prefix}{value}".format(opt_prefix = opt_prefix, value = value) if value != default_value else ""
-
 
 def _st_flash_direct_call_impl(ctx):
     # If not st-flash binary is provided, we use the system default one
@@ -15,20 +14,24 @@ def _st_flash_direct_call_impl(ctx):
     binary = ctx.attr.binary[OutputGroupInfo].bin.to_list()[0]
     script_content = "{st_flash} {cmd_with_binary}".format(
         st_flash = st_flash_executable,
-        cmd_with_binary = ctx.attr.cmd.format(binary = binary.path)
+        cmd_with_binary = ctx.attr.cmd.format(
+            binary_path = "$BUILD_WORKSPACE_DIRECTORY/" + binary.path
+            binary_runfile = "$BUILD_WORKSPACE_DIRECTORY/" + binary.path
+        )
     )
 
     script_content += " --debug" if ctx.attr.debug else ""
-    script_content += " " + st_opt(ctx.attr.flash_address, "")
-    script_content += " " + st_opt(ctx.attr.serial, "--serial ")
-    script_content += " " + st_opt(ctx.attr.freq, "--freq=")
+    script_content += " " + _st_opt(ctx.attr.flash_address, "")
+    script_content += " " + _st_opt(ctx.attr.serial, "--serial ")
+    script_content += " " + _st_opt(ctx.attr.freq, "--freq=")
     script_content += " --connect-under-reset" if ctx.attr.connect_under_reset else ""
     
+    if %{is_windows} == True:
+        script_content = "pwsh -c \"{}\"".format(script_content)
+
     flash_extension = ".sh"
-    if ctx.configuration.host_path_separator == ';':
+    if %{is_windows} == True:
         flash_extension = ".bat"
-    elif ctx.configuration.host_path_separator != ':':
-        print("Received unknown '{host_path_separator}' as PATH separator; Unix system is assumed".format(host_path_separator = ctx.configuration.host_path_separator))
 
     flasher_wrapper = ctx.actions.declare_file(ctx.label.name + flash_extension)
     ctx.actions.write(
@@ -51,7 +54,7 @@ def _st_flash_direct_call_impl(ctx):
 st_flash_direct_call = rule(
     implementation = _st_flash_direct_call_impl,
     attrs = {
-        "binary": attr.label(mandatory = True),
+        "binary": attr.label(mandatory = True, cfg = "target"),
         "cmd": attr.string(default = ""),
 
         "flash_address": attr.string(default = ""),
@@ -76,7 +79,7 @@ def st_flash(
         name = name,
         binary = binary,
         flash_address = flash_address,
-        cmd = "write {binary}",
+        cmd = "write {binary_runfile}",
         **kwargs
     )
 
@@ -92,9 +95,9 @@ def _st_util_direct_call_impl(ctx):
         cmd = ctx.attr.cmd,
     )
 
-    script_content += " " + st_opt(ctx.attr.port, "--listen_port=")
-    script_content += " " + st_opt(ctx.attr.serial, "--serial ")
-    script_content += " " + st_opt(ctx.attr.freq, "--freq=")
+    script_content += " " + _st_opt(ctx.attr.port, "--listen_port=")
+    script_content += " " + _st_opt(ctx.attr.serial, "--serial ")
+    script_content += " " + _st_opt(ctx.attr.freq, "--freq=")
     script_content += " --connect-under-reset" if ctx.attr.connect_under_reset  else ""
     script_content += " --no-reset" if ctx.attr.no_reset  else ""
     

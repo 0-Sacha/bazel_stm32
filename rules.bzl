@@ -1,17 +1,30 @@
 ""
 
-load("@bazel_arm//registry:registry.bzl", "ARM_REGISTRY")
-load("@bazel_arm//:rules.bzl", "arm_toolchain", "arm_compiler_archive")
+load("@bazel_arm//arm_gcc/registry:registry.bzl", "ARM_GCC_REGISTRY")
+load("@bazel_arm//arm_gcc:rules.bzl", "arm_gcc_toolchain", "arm_gcc_archive")
 load("@bazel_skylib//lib:sets.bzl", "sets")
 
 load("//mcu:stm32_families.bzl", "STM32_FAMILIES_LUT", "stm32_family_info_from_dict")
 
 def _stm32_rules_impl(rctx):
+    is_windows = "False"
+    if "windows" in rctx.os.name:
+        is_windows = "True"
+
+    extension = ""
+    if is_windows == "True":
+        extension = ".exe"
+
     substitutions = {
         "%{rctx_name}": rctx.name,
+        "%{rctx_name_split}": rctx.name.split("+")[-1],
+        
         "%{toolchain_path}": "external/{}/".format(rctx.name),
 
         "%{arm_none_eabi_repo_name}": rctx.attr.arm_none_eabi_repo_name,
+
+        "%{is_windows}": is_windows,
+        "%{extension}": extension,
 
         "%{MCU_ID}": rctx.attr.mcu,
         "%{MCU_FAMILY}": rctx.attr.stm32_family,
@@ -29,6 +42,16 @@ def _stm32_rules_impl(rctx):
     rctx.template(
         "rules.bzl",
         Label("//templates:rules.bzl.tpl"),
+        substitutions
+    )
+    rctx.template(
+        "st_tools.bzl",
+        Label("//templates:st_tools.bzl.tpl"),
+        substitutions
+    )
+    rctx.template(
+        "openocd.bzl",
+        Label("//templates:openocd.bzl.tpl"),
         substitutions
     )
 
@@ -77,7 +100,7 @@ def stm32_toolchain(
         use_mcu_constraint = True,
 
         arm_none_eabi_version = "latest",
-        arm_registry = None,
+        arm_registry = ARM_GCC_REGISTRY,
         arm_compiler_archive_package = None,
     ):
     """STM32 toolchain
@@ -115,7 +138,7 @@ def stm32_toolchain(
         use_mcu_constraint: Add the mcu_constraint list (cpu / stm32 family) to the target_compatible_with
 
         arm_none_eabi_version: The arm-none-eabi archive version
-        arm_registry: The arm registry to use. Default to @bazel_arm//:ARM_REGISTRY
+        arm_registry: The arm registry to use. Default to @bazel_arm//arm_gcc/registry:ARM_GCC_REGISTRY
         arm_compiler_archive_package: The arm archive to use. If none are provided, one will be define automatically with this name: ":arm-none-eabi-" + mcu
     """
     mcu = mcu.upper()
@@ -135,7 +158,7 @@ def stm32_toolchain(
     if use_mcu_constraint:
         target_compatible_with = target_compatible_with + toolchain_mcu_constraint
 
-    arm_toolchain(
+    arm_gcc_toolchain(
         name = "arm-none-eabi-" + name,
         toolchain_type = "arm-none-eabi",
         toolchain_version = arm_none_eabi_version,
@@ -161,7 +184,7 @@ def stm32_toolchain(
 
         toolchain_extras_filegroups = arm_toolchain_extras_filegroups,
 
-        registry = arm_registry,
+        registry_json = json.encode(arm_registry),
 
         compiler_archive_package = arm_compiler_archive_package,
     )
@@ -185,9 +208,9 @@ def _stm32_toolchain_extension_impl(module_ctx):
     if len(toolchain_versions_list) == 0:
         toolchain_versions_list.append("latest")
     toolchain_versions_list = sets.to_list(sets.make(toolchain_versions_list))
-    arm_registry = ARM_REGISTRY
+    arm_registry = ARM_GCC_REGISTRY
     for version in toolchain_versions_list:
-        arm_compiler_archive(
+        arm_gcc_archive(
             name = "archive_arm-none-eabi-" + version,
             toolchain_type = "arm-none-eabi",
             toolchain_version = version,

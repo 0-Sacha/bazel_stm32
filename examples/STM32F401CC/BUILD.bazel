@@ -1,5 +1,6 @@
 load("@STM32F401//:rules.bzl", "st_binary")
-load("@bazel_stm32//st_tools:st_tools.bzl", "st_flash", "st_debug")
+load("@STM32F401//:st_tools.bzl", "st_flash", "st_debug")
+load("@STM32F401//:openocd.bzl", "openocd_flash", "openocd_debug")
 
 st_binary(
     name = "HelloWorld",
@@ -14,8 +15,17 @@ st_binary(
 )
 
 st_flash(
-    name = "flash",
+    name = "st_flash",
     binary = ":HelloWorld",
 )
+st_debug(name = "st_debug")
 
-st_debug(name = "debug")
+openocd_flash(
+    name = "ocd_flash",
+    binary = ":HelloWorld",
+    script_files = [ "interface/stlink.cfg", "target/stm32f4x.cfg" ],
+)
+openocd_debug(
+    name = "ocd_debug",
+    script_files = [ "interface/stlink.cfg", "target/stm32f4x.cfg" ],
+)
