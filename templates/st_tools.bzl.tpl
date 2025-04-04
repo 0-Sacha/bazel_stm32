@@ -4,7 +4,7 @@
 def _st_opt(value, opt_prefix, default_value = ""):
     return "{opt_prefix}{value}".format(opt_prefix = opt_prefix, value = value) if value != default_value else ""
 
-def _st_flash_direct_call_impl(ctx):
+def _impl_st_flash_direct_call(ctx):
     # If not st-flash binary is provided, we use the system default one
     if len(ctx.files._st_flash_folder_script) == 0:
         st_flash_executable = "st-flash"
@@ -52,7 +52,7 @@ def _st_flash_direct_call_impl(ctx):
     ]
 
 st_flash_direct_call = rule(
-    implementation = _st_flash_direct_call_impl,
+    implementation = _impl_st_flash_direct_call,
     attrs = {
         "binary": attr.label(mandatory = True, cfg = "target"),
         "cmd": attr.string(default = ""),
@@ -83,7 +83,7 @@ def st_flash(
         **kwargs
     )
 
-def _st_util_direct_call_impl(ctx):
+def _impl_st_util_direct_call(ctx):
     # If not st-util binary is provided, we use the system default one
     if len(ctx.files._st_util_folder_script) == 0:
         st_util_executable = "st-util"
@@ -123,7 +123,7 @@ def _st_util_direct_call_impl(ctx):
     ]
 
 st_util_direct_call = rule(
-    implementation = _st_util_direct_call_impl,
+    implementation = _impl_st_util_direct_call,
     attrs = {
         "cmd": attr.string(default = ""),
 

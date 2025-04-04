@@ -6,7 +6,7 @@ load("@bazel_skylib//lib:sets.bzl", "sets")
 
 load("//mcu:stm32_families.bzl", "STM32_FAMILIES_LUT", "stm32_family_info_from_dict")
 
-def _stm32_rules_impl(rctx):
+def _impl_stm32_rules(rctx):
     is_windows = "False"
     if "windows" in rctx.os.name:
         is_windows = "True"
@@ -56,7 +56,7 @@ def _stm32_rules_impl(rctx):
     )
 
 _stm32_rules = repository_rule(
-    implementation = _stm32_rules_impl,
+    implementation = _impl_stm32_rules,
     attrs = {
         'arm_none_eabi_repo_name': attr.string(mandatory = True),
 
@@ -199,7 +199,7 @@ def stm32_toolchain(
     )
 
 
-def _stm32_toolchain_extension_impl(module_ctx):
+def _impl_stm32_toolchain_extension(module_ctx):
     toolchain_versions_list = [
         platform.toolchain_version
         for mod in module_ctx.modules 
@@ -256,7 +256,7 @@ def _stm32_toolchain_extension_impl(module_ctx):
             )
     
 stm32_toolchain_extension = module_extension(
-    implementation = _stm32_toolchain_extension_impl,
+    implementation = _impl_stm32_toolchain_extension,
     tag_classes = {
         "stm32_platform": tag_class(attrs = {
             'name': attr.string(mandatory = True),

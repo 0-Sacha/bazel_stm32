@@ -26,7 +26,7 @@ def _get_cmd_action_script(ctx):
 
     return cmd_action, direct_call_wrapper
 
-def _openocd_direct_call_bin_impl(ctx):
+def _impl_openocd_direct_call_bin(ctx):
     cmd_action, direct_call_wrapper = _get_cmd_action_script(ctx)
 
     cmd = ctx.attr.cmd.format(
@@ -55,7 +55,7 @@ def _openocd_direct_call_bin_impl(ctx):
     ]
 
 openocd_direct_call_bin = rule(
-    implementation = _openocd_direct_call_bin_impl,
+    implementation = _impl_openocd_direct_call_bin,
     attrs = {
         "_openocd_executable": attr.label(default = Label("@bazel_stm32//tools:openocd_executable")),
 
@@ -94,7 +94,7 @@ def openocd_debug_binary(name, binary, **kwargs):
         **kwargs,
     )
 
-def _openocd_direct_call_impl(ctx):
+def _impl_openocd_direct_call(ctx):
     cmd_action, direct_call_wrapper = _get_cmd_action_script(ctx)
 
     ctx.actions.write(
@@ -115,7 +115,7 @@ def _openocd_direct_call_impl(ctx):
     ]
 
 openocd_direct_call = rule(
-    implementation = _openocd_direct_call_impl,
+    implementation = _impl_openocd_direct_call,
     attrs = {
         "_openocd_executable": attr.label(default = Label("@bazel_stm32//tools:openocd_executable")),
         "_scripts": attr.label(default = Label("@bazel_stm32//tools:scripts")),
