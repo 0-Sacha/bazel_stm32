@@ -1,6 +1,6 @@
 load("@STM32F103//:rules.bzl", "st_binary")
 load("@STM32F103//:st_tools.bzl", "st_flash", "st_debug")
-load("@STM32F401//:st_tools.bzl", "openocd_flash", "openocd_debug")
+load("@STM32F103//:openocd.bzl", "openocd_flash", "openocd_debug")
 
 st_binary(
     name = "HelloWorld",
