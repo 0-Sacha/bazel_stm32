@@ -1,1 +1,6 @@
+
+# Avoid having a MANIFEST file in the runfiles folder
+startup --windows_enable_symlinks
+common --enable_runfiles
+
 build --platforms=@STM32F103//:platform
