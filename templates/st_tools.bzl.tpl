@@ -15,8 +15,8 @@ def _impl_st_flash_direct_call(ctx):
     script_content = "{st_flash} {cmd_with_binary}".format(
         st_flash = st_flash_executable,
         cmd_with_binary = ctx.attr.cmd.format(
-            binary_path = "$BUILD_WORKSPACE_DIRECTORY/" + binary.path
-            binary_runfile = "$BUILD_WORKSPACE_DIRECTORY/" + binary.path
+            binary_path = "$BUILD_WORKSPACE_DIRECTORY/" + binary.path,
+            binary_runfile = "$BUILD_WORKSPACE_DIRECTORY/" + binary.path,
         )
     )
 

@@ -211,7 +211,7 @@ def _impl_stm32_toolchain_extension(module_ctx):
     arm_registry = ARM_GCC_REGISTRY
     for version in toolchain_versions_list:
         arm_gcc_archive(
-            name = "archive_arm-none-eabi-" + version,
+            name = "archive-arm_gcc-arm-none-eabi-" + version,
             toolchain_type = "arm-none-eabi",
             toolchain_version = version,
             registry_json = json.encode(arm_registry),
@@ -252,7 +252,7 @@ def _impl_stm32_toolchain_extension(module_ctx):
                 target_compatible_with = platform.target_compatible_with,
                 use_mcu_constraint = platform.use_mcu_constraint,
 
-                arm_compiler_archive_package = "@archive_arm-none-eabi-" + platform.toolchain_version,
+                arm_compiler_archive_package = "@archive-arm_gcc-arm-none-eabi-" + platform.toolchain_version,
             )
     
 stm32_toolchain_extension = module_extension(

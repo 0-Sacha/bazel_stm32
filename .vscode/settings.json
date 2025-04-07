@@ -13,6 +13,7 @@
         "linklibs",
         "linkopts",
         "mcpu",
+        "mcuopts",
         "mfloat",
         "mfpu",
         "mthumb",

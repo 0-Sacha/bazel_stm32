@@ -1,3 +1,4 @@
+[![bazel_stm32/stm32F1](https://github.com/0-Sacha/bazel_stm32/actions/workflows/stm32F1.yml/badge.svg)](https://github.com/0-Sacha/bazel_stm32/actions/workflows/stm32F1.yml)
 [![bazel_stm32/stm32F4](https://github.com/0-Sacha/bazel_stm32/actions/workflows/stm32F4.yml/badge.svg)](https://github.com/0-Sacha/bazel_stm32/actions/workflows/stm32F4.yml)
 
 # bazel_stm32
@@ -10,7 +11,7 @@ MODULE.bazel
 bazel_dep(name = "rules_cc", version = "0.0.10")
 bazel_dep(name = "platforms", version = "0.0.10")
 
-git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="1c3c6c01dcccc6c922c4955c92aa7c3c015a9d1c")
+git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="230196b5427877a13e38a6e9d3b5a3b336ff2480")
 git_override(module_name="bazel_arm", remote="https://github.com/0-Sacha/bazel_arm.git", commit="635ad77ae3365f9968ecd882ed06476732493bd3")
 
 # Replace with git_override from my repo `https://github.com/0-Sacha/bazel_stm32.git`
